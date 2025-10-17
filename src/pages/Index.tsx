@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Header } from "@/components/Header";
 import { AnalysisInput } from "@/components/AnalysisInput";
 import { AnalysisProgress } from "@/components/AnalysisProgress";
 import { CompanySummary } from "@/components/CompanySummary";
@@ -8,6 +9,8 @@ import { MarketSignals } from "@/components/MarketSignals";
 import { RiskAssessment } from "@/components/RiskAssessment";
 import { InvestmentIndicators } from "@/components/InvestmentIndicators";
 import { InvestmentOutlook } from "@/components/InvestmentOutlook";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 
 const mockData = {
   ACME: {
@@ -153,11 +156,21 @@ const Index = () => {
 
   const data = mockData[selectedTicker as keyof typeof mockData] || mockData.ACME;
 
+  const handleNewAnalysis = () => {
+    setShowResults(false);
+    setSelectedTicker("");
+  };
+
   return (
-    <div className="min-h-screen gradient-hero">
-      <div className="container mx-auto px-4 py-12">
+    <div className="min-h-screen bg-background">
+      <Header 
+        showActions={showResults} 
+        onNewAnalysis={handleNewAnalysis}
+      />
+      
+      <div className="container mx-auto px-4 py-8">
         {!isAnalyzing && !showResults ? (
-          <div className="flex items-center justify-center min-h-[80vh]">
+          <div className="flex items-center justify-center min-h-[calc(100vh-12rem)]">
             <AnalysisInput onAnalyze={handleAnalyze} />
           </div>
         ) : isAnalyzing ? (
@@ -165,51 +178,76 @@ const Index = () => {
             <AnalysisProgress steps={analysisSteps} currentStep={currentStep} />
           </div>
         ) : (
-          <div className="space-y-6 animate-in fade-in duration-700">
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h1 className="text-3xl font-bold mb-2">Investment Analysis Report</h1>
-                <p className="text-muted-foreground">
-                  Generated for {selectedTicker} • {new Date().toLocaleDateString()}
-                </p>
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+            {/* Report Header */}
+            <div className="mb-8 pb-6 border-b">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <h1 className="text-3xl font-bold">Investment Analysis Report</h1>
+                  </div>
+                  <p className="text-muted-foreground">
+                    {data.name} • Generated {new Date().toLocaleDateString('en-US', { 
+                      month: 'long', 
+                      day: 'numeric', 
+                      year: 'numeric' 
+                    })}
+                  </p>
+                </div>
               </div>
-              <button
-                onClick={() => {
-                  setShowResults(false);
-                  setSelectedTicker("");
-                }}
-                className="text-sm text-muted-foreground hover:text-foreground transition-smooth"
-              >
-                ← New Analysis
-              </button>
             </div>
 
-            <CompanySummary
-              name={data.name}
-              domain={data.domain}
-              foundedDate={data.foundedDate}
-              industry={data.industry}
-              businessModel={data.businessModel}
-              productDescription={data.productDescription}
-              geographicFocus={data.geographicFocus}
-            />
-
-            <TractionMetrics {...data.traction} />
-
-            <TeamQuality {...data.team} />
-
-            <div className="grid md:grid-cols-2 gap-6">
-              <MarketSignals {...data.market} />
-              <RiskAssessment risks={data.risks} />
+            {/* Company Overview Section */}
+            <div className="mb-8">
+              <CompanySummary
+                name={data.name}
+                domain={data.domain}
+                foundedDate={data.foundedDate}
+                industry={data.industry}
+                businessModel={data.businessModel}
+                productDescription={data.productDescription}
+                geographicFocus={data.geographicFocus}
+              />
             </div>
 
-            <InvestmentIndicators {...data.indicators} />
+            {/* Tabbed Content for Better Organization */}
+            <Tabs defaultValue="overview" className="w-full">
+              <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid mb-6">
+                <TabsTrigger value="overview">Overview</TabsTrigger>
+                <TabsTrigger value="metrics">Metrics</TabsTrigger>
+                <TabsTrigger value="analysis">Analysis</TabsTrigger>
+                <TabsTrigger value="outlook">Outlook</TabsTrigger>
+              </TabsList>
 
-            <InvestmentOutlook
-              recommendation={data.outlook.recommendation}
-              confidence={data.outlook.confidence}
-              summary={data.outlook.summary}
-            />
+              <TabsContent value="overview" className="space-y-6">
+                <TractionMetrics {...data.traction} />
+                <TeamQuality {...data.team} />
+              </TabsContent>
+
+              <TabsContent value="metrics" className="space-y-6">
+                <InvestmentIndicators {...data.indicators} />
+                <div className="grid md:grid-cols-2 gap-6">
+                  <MarketSignals {...data.market} />
+                  <RiskAssessment risks={data.risks} />
+                </div>
+              </TabsContent>
+
+              <TabsContent value="analysis" className="space-y-6">
+                <div className="grid md:grid-cols-2 gap-6">
+                  <MarketSignals {...data.market} />
+                  <RiskAssessment risks={data.risks} />
+                </div>
+                <TeamQuality {...data.team} />
+              </TabsContent>
+
+              <TabsContent value="outlook" className="space-y-6">
+                <InvestmentOutlook
+                  recommendation={data.outlook.recommendation}
+                  confidence={data.outlook.confidence}
+                  summary={data.outlook.summary}
+                />
+              </TabsContent>
+            </Tabs>
           </div>
         )}
       </div>
