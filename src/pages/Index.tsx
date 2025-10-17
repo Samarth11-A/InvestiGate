@@ -2,75 +2,126 @@ import { useState, useEffect } from "react";
 import { AnalysisInput } from "@/components/AnalysisInput";
 import { AnalysisProgress } from "@/components/AnalysisProgress";
 import { CompanySummary } from "@/components/CompanySummary";
-import { FinancialMetrics } from "@/components/FinancialMetrics";
-import { NewsHighlights } from "@/components/NewsHighlights";
+import { TractionMetrics } from "@/components/TractionMetrics";
+import { TeamQuality } from "@/components/TeamQuality";
+import { MarketSignals } from "@/components/MarketSignals";
 import { RiskAssessment } from "@/components/RiskAssessment";
+import { InvestmentIndicators } from "@/components/InvestmentIndicators";
 import { InvestmentOutlook } from "@/components/InvestmentOutlook";
 
 const mockData = {
-  TSLA: {
-    name: "Tesla Inc.",
-    marketCap: "$1.15T",
-    ytdChange: 12.3,
-    price: "$345.67",
-    sector: "Automotive & Clean Energy",
-    metrics: [
-      { label: "P/E Ratio", value: "68.4", description: "Price to Earnings" },
-      { label: "ROE", value: "19.2%", description: "Return on Equity" },
-      { label: "Debt/Equity", value: "0.45", description: "Financial Leverage" },
-      { label: "Profit Margin", value: "13.5%", description: "Net Profitability" },
-    ],
-    news: [
-      {
-        title: "Tesla Expands Battery Manufacturing in Berlin",
-        date: "Oct 15, 2025",
-        source: "Reuters",
-        summary: "New gigafactory expansion aims to triple battery production capacity by Q2 2026.",
-      },
-      {
-        title: "SEC Filing Reveals Supply Chain Concerns",
-        date: "Oct 12, 2025",
-        source: "SEC.gov",
-        summary: "Company reports potential margin volatility due to lithium pricing fluctuations.",
-      },
-      {
-        title: "Q3 Earnings Beat Analyst Expectations",
-        date: "Oct 10, 2025",
-        source: "Bloomberg",
-        summary: "Revenue up 18% YoY driven by strong Model Y sales in Asia-Pacific markets.",
-      },
-    ],
+  ACME: {
+    name: "Acme AI Labs",
+    domain: "acmeai.io",
+    foundedDate: "March 2024",
+    industry: "Enterprise AI / SaaS",
+    businessModel: "B2B SaaS",
+    productDescription: "AI-powered workflow automation platform that helps mid-market companies automate repetitive business processes using natural language. No-code interface enables business users to create custom automation without technical expertise.",
+    geographicFocus: "North America, expanding to Europe",
+    traction: {
+      employeeCount: 12,
+      employeeGrowth6m: "50%",
+      employeeGrowth1y: "200%",
+      fundingStage: "Pre-Seed",
+      totalRaised: "$2.1M",
+      recentRound: "$2.1M Pre-Seed",
+      revenueIndicator: "$25K MRR",
+      customerCount: "18 paying",
+    },
+    team: {
+      founders: [
+        {
+          name: "Sarah Chen",
+          role: "CEO & Co-Founder",
+          background: "Former VP of Engineering at Salesforce, 12 years in enterprise software. Stanford CS.",
+          previousExits: "Acquired by Salesforce (2019) - workforce analytics startup ($45M)",
+        },
+        {
+          name: "Michael Rodriguez",
+          role: "CTO & Co-Founder",
+          background: "Ex-Google AI Research, led ML infrastructure team. PhD in Machine Learning from MIT.",
+        },
+      ],
+      keyExecutives: [
+        {
+          name: "Jennifer Park",
+          role: "Head of Product",
+          background: "Former Product Lead at Notion, 8 years in SaaS product management",
+        },
+      ],
+      teamComposition: "60% engineering, 25% product/design, 15% sales/marketing. Strong technical foundation with emerging go-to-market capabilities.",
+      teamGaps: "Need VP of Sales and Head of Customer Success for scaling",
+    },
+    market: {
+      competitivePosition: "Differentiated by vertical-specific AI models and ease of use. Competing with Zapier, Make.com but focused on AI-native approach.",
+      marketSize: "$12.8B TAM",
+      growthTrend: "Growing 23% CAGR through 2028",
+      recentPress: [
+        {
+          title: "Acme AI raises $2.1M to democratize workflow automation",
+          date: "Oct 15, 2025",
+          source: "TechCrunch",
+          sentiment: "positive" as const,
+        },
+        {
+          title: "Y Combinator W24 batch company sees rapid adoption",
+          date: "Oct 8, 2025",
+          source: "VentureBeat",
+          sentiment: "positive" as const,
+        },
+        {
+          title: "Industry experts question sustainability of AI automation startups",
+          date: "Sep 28, 2025",
+          source: "The Information",
+          sentiment: "neutral" as const,
+        },
+      ],
+      techStack: ["Python", "React", "PostgreSQL", "AWS", "OpenAI GPT-4", "LangChain", "Kubernetes"],
+    },
     risks: [
       {
-        category: "Market Competition",
-        level: "high" as const,
-        description: "Rising competition from legacy automakers and Chinese EV manufacturers putting pressure on market share.",
-      },
-      {
-        category: "Supply Chain",
+        category: "Market Timing",
         level: "medium" as const,
-        description: "Dependency on lithium and rare earth materials creates exposure to commodity price volatility.",
+        description: "Crowded AI automation space with well-funded competitors. Need to establish differentiation quickly.",
       },
       {
-        category: "Regulatory Environment",
+        category: "Technical Execution",
         level: "low" as const,
-        description: "Strong government support for EV adoption in key markets provides favorable regulatory tailwinds.",
+        description: "Strong technical team with proven track record. Product is already in market with paying customers.",
+      },
+      {
+        category: "Go-to-Market",
+        level: "high" as const,
+        description: "Limited sales and marketing expertise. Customer acquisition strategy still being refined. High CAC for current deal sizes.",
       },
     ],
+    indicators: {
+      hiringVelocity: {
+        openPositions: 5,
+        recentHires: "3 engineers hired in last 2 months",
+      },
+      productLaunches: [
+        "AI Workflow Builder v2.0 with natural language interface (Sep 2025)",
+        "Enterprise security features and SSO integration (Aug 2025)",
+        "Slack and Microsoft Teams integrations (July 2025)",
+      ],
+      partnerships: ["AWS Partner Network", "OpenAI Partner", "Y Combinator W24"],
+      growthTrajectory: "Revenue growing 40% MoM over last 3 months. User engagement metrics strong (80% weekly active rate). Early signs of product-market fit in mid-market segment.",
+    },
     outlook: {
-      recommendation: "Moderate Buy" as const,
-      confidence: 76,
-      summary: "Tesla maintains strong fundamentals with robust revenue growth and expanding production capacity. However, increasing competition and supply chain uncertainties warrant a cautious approach. Long-term outlook remains positive given the global shift toward electric vehicles and renewable energy.",
+      recommendation: "Strong Investment" as const,
+      confidence: 82,
+      summary: "Acme AI demonstrates strong founder-market fit with proven enterprise software expertise and successful prior exit. Technical execution is solid with a differentiated product gaining early traction. Primary concern is go-to-market execution and high customer acquisition costs. The team's ability to scale GTM will be critical. Market timing is favorable with strong tailwinds in AI automation. Recommend investment with close monitoring of sales efficiency metrics.",
     },
   },
 };
 
 const analysisSteps = [
-  { label: "Scraping financial data from web sources", status: "pending" as const },
-  { label: "Extracting SEC filings and earnings reports", status: "pending" as const },
-  { label: "Computing financial ratios and metrics", status: "pending" as const },
-  { label: "Analyzing recent news and sentiment", status: "pending" as const },
-  { label: "Generating AI-powered summary", status: "pending" as const },
+  { label: "Scraping company website and online presence", status: "pending" as const },
+  { label: "Extracting funding data and team information", status: "pending" as const },
+  { label: "Analyzing traction metrics and growth indicators", status: "pending" as const },
+  { label: "Evaluating market signals and competitive landscape", status: "pending" as const },
+  { label: "Generating AI-powered investment summary", status: "pending" as const },
 ];
 
 const Index = () => {
@@ -100,7 +151,7 @@ const Index = () => {
     }
   }, [isAnalyzing, currentStep]);
 
-  const data = mockData[selectedTicker as keyof typeof mockData] || mockData.TSLA;
+  const data = mockData[selectedTicker as keyof typeof mockData] || mockData.ACME;
 
   return (
     <div className="min-h-screen gradient-hero">
@@ -134,20 +185,25 @@ const Index = () => {
             </div>
 
             <CompanySummary
-              ticker={selectedTicker}
               name={data.name}
-              marketCap={data.marketCap}
-              ytdChange={data.ytdChange}
-              price={data.price}
-              sector={data.sector}
+              domain={data.domain}
+              foundedDate={data.foundedDate}
+              industry={data.industry}
+              businessModel={data.businessModel}
+              productDescription={data.productDescription}
+              geographicFocus={data.geographicFocus}
             />
 
-            <FinancialMetrics metrics={data.metrics} />
+            <TractionMetrics {...data.traction} />
+
+            <TeamQuality {...data.team} />
 
             <div className="grid md:grid-cols-2 gap-6">
-              <NewsHighlights news={data.news} />
+              <MarketSignals {...data.market} />
               <RiskAssessment risks={data.risks} />
             </div>
+
+            <InvestmentIndicators {...data.indicators} />
 
             <InvestmentOutlook
               recommendation={data.outlook.recommendation}

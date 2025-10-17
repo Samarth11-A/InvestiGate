@@ -25,10 +25,10 @@ export const AnalysisInput = ({ onAnalyze, isLoading }: AnalysisInputProps) => {
           <TrendingUp className="w-8 h-8 text-primary" />
         </div>
         <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-          AI Investment Analysis
+          AI-Powered Startup Due Diligence
         </h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          Automated research, vetting, and summarization powered by advanced AI agents and financial data scraping
+          Automated pre-seed company research and investment analysis powered by AI agents
         </p>
       </div>
 
@@ -38,7 +38,7 @@ export const AnalysisInput = ({ onAnalyze, isLoading }: AnalysisInputProps) => {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             <Input
               type="text"
-              placeholder="Enter company ticker (e.g., TSLA, AAPL, MSFT)"
+              placeholder="Enter company name or domain (e.g., acmeai.io)"
               value={ticker}
               onChange={(e) => setTicker(e.target.value)}
               className="pl-12 h-14 text-lg border-0 bg-transparent focus-visible:ring-0"
@@ -57,15 +57,15 @@ export const AnalysisInput = ({ onAnalyze, isLoading }: AnalysisInputProps) => {
       </form>
 
       <div className="mt-8 flex flex-wrap justify-center gap-2">
-        <span className="text-sm text-muted-foreground">Popular:</span>
-        {["TSLA", "AAPL", "MSFT", "GOOGL", "NVDA"].map((symbol) => (
+        <span className="text-sm text-muted-foreground">Examples:</span>
+        {["acmeai.io", "stripe.com", "notion.so", "linear.app"].map((domain) => (
           <button
-            key={symbol}
-            onClick={() => setTicker(symbol)}
+            key={domain}
+            onClick={() => setTicker(domain)}
             disabled={isLoading}
             className="px-3 py-1 text-sm rounded-full bg-secondary hover:bg-secondary/80 transition-smooth disabled:opacity-50"
           >
-            {symbol}
+            {domain}
           </button>
         ))}
       </div>
