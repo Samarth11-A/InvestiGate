@@ -1,7 +1,8 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Target, Download, Share2 } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Target, Download, Share2, TrendingUp, AlertCircle, Eye } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface InvestmentOutlookProps {
@@ -18,19 +19,37 @@ export const InvestmentOutlook = ({
   const { toast } = useToast();
 
   const getRecommendationStyle = () => {
-    if (recommendation.includes("Investment")) {
-      return "gradient-accent text-accent-foreground";
+    if (recommendation.includes("Strong")) {
+      return {
+        badge: "bg-gradient-to-r from-success to-success/80 text-white border-0",
+        icon: TrendingUp,
+        color: "text-success"
+      };
+    } else if (recommendation.includes("Moderate")) {
+      return {
+        badge: "bg-gradient-to-r from-primary to-primary/80 text-white border-0",
+        icon: TrendingUp,
+        color: "text-primary"
+      };
     } else if (recommendation === "Monitor") {
-      return "bg-warning text-warning-foreground";
+      return {
+        badge: "bg-gradient-to-r from-warning to-warning/80 text-white border-0",
+        icon: Eye,
+        color: "text-warning"
+      };
     } else {
-      return "bg-muted text-muted-foreground";
+      return {
+        badge: "bg-muted text-muted-foreground",
+        icon: AlertCircle,
+        color: "text-muted-foreground"
+      };
     }
   };
 
   const handleDownload = () => {
     toast({
       title: "Report Downloaded",
-      description: "One-page investment summary saved as PDF",
+      description: "Investment summary saved as PDF successfully",
     });
   };
 
@@ -41,55 +60,90 @@ export const InvestmentOutlook = ({
     });
   };
 
+  const style = getRecommendationStyle();
+  const RecommendationIcon = style.icon;
+
   return (
-    <Card className="p-6 shadow-card hover:shadow-elevated transition-smooth">
-      <div className="flex items-center gap-2 mb-6">
-        <Target className="w-5 h-5 text-primary" />
-        <h3 className="text-xl font-bold">Investment Outlook</h3>
+    <Card className="p-8 shadow-xl border-2 hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-card to-card/50">
+      <div className="flex items-center gap-3 mb-8">
+        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+          <Target className="w-6 h-6 text-white" />
+        </div>
+        <div>
+          <h3 className="text-2xl font-bold">Investment Recommendation</h3>
+          <p className="text-sm text-muted-foreground">AI-generated analysis summary</p>
+        </div>
       </div>
 
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="space-y-2">
-            <Badge className={`${getRecommendationStyle()} text-lg px-4 py-2`}>
-              {recommendation}
-            </Badge>
-            <p className="text-sm text-muted-foreground">
-              AI Confidence: <span className="font-semibold">{confidence}%</span>
-            </p>
+      <div className="space-y-8">
+        {/* Recommendation Badge */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+          <div className="space-y-4 flex-1">
+            <div className="flex items-center gap-3">
+              <Badge className={`${style.badge} text-xl px-6 py-3 shadow-lg`}>
+                <RecommendationIcon className="w-5 h-5 mr-2" />
+                {recommendation}
+              </Badge>
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold text-muted-foreground">
+                  AI Confidence Score
+                </p>
+                <span className={`text-2xl font-bold ${style.color}`}>
+                  {confidence}%
+                </span>
+              </div>
+              <Progress value={confidence} className="h-3" />
+            </div>
           </div>
-          <div className="flex gap-2">
+
+          <div className="flex sm:flex-col gap-2 w-full sm:w-auto">
             <Button
               variant="outline"
-              size="sm"
+              size="lg"
               onClick={handleShare}
-              className="gap-2"
+              className="gap-2 flex-1 sm:flex-none"
             >
               <Share2 className="w-4 h-4" />
-              Share
+              <span className="hidden sm:inline">Share Report</span>
+              <span className="sm:hidden">Share</span>
             </Button>
             <Button
-              variant="default"
-              size="sm"
+              size="lg"
               onClick={handleDownload}
-              className="gap-2 gradient-primary"
+              className="gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90 flex-1 sm:flex-none"
             >
               <Download className="w-4 h-4" />
-              Download PDF
+              <span className="hidden sm:inline">Export PDF</span>
+              <span className="sm:hidden">Export</span>
             </Button>
           </div>
         </div>
 
-        <div className="p-4 rounded-lg bg-muted/50">
-          <p className="text-sm leading-relaxed">{summary}</p>
+        {/* Summary */}
+        <div className="p-6 rounded-2xl bg-gradient-to-br from-muted/50 to-muted/30 border border-border/50">
+          <h4 className="font-semibold mb-3 flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+            Executive Summary
+          </h4>
+          <p className="text-base leading-relaxed text-foreground/90">{summary}</p>
         </div>
 
-        <div className="pt-4 border-t space-y-2">
-          <p className="text-xs text-muted-foreground">
-            This analysis is generated by AI agents using automated web data scraping and
-            multi-source analysis. Investment decisions should be made after thorough due diligence
-            and consulting with your investment committee.
-          </p>
+        {/* Disclaimer */}
+        <div className="pt-6 border-t space-y-3">
+          <div className="flex items-start gap-3 p-4 rounded-xl bg-muted/30">
+            <AlertCircle className="w-5 h-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+            <div className="text-xs text-muted-foreground leading-relaxed">
+              <p className="font-semibold mb-1">Disclaimer</p>
+              <p>
+                This analysis is AI-generated using automated data collection and multi-source analysis. 
+                Investment decisions should be made after comprehensive due diligence and consultation 
+                with your investment committee. Past performance does not guarantee future results.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </Card>
