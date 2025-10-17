@@ -1,11 +1,7 @@
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { TrendingUp, Users, DollarSign, Target, ArrowUpRight } from "lucide-react";
+import { TrendingUp, DollarSign, Target } from "lucide-react";
 
 interface TractionMetricsProps {
-  employeeCount: number;
-  employeeGrowth6m: string;
-  employeeGrowth1y: string;
   fundingStage: string;
   totalRaised: string;
   recentRound: string;
@@ -14,9 +10,6 @@ interface TractionMetricsProps {
 }
 
 export const TractionMetrics = ({
-  employeeCount,
-  employeeGrowth6m,
-  employeeGrowth1y,
   fundingStage,
   totalRaised,
   recentRound,
@@ -35,28 +28,7 @@ export const TractionMetrics = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Team Size */}
-        <div className="p-5 rounded-xl bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20 hover:border-primary/40 transition-all">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
-              <Users className="w-4 h-4 text-primary" />
-            </div>
-            <p className="text-sm font-medium text-muted-foreground">Team Size</p>
-          </div>
-          <p className="text-4xl font-bold text-primary mb-2">{employeeCount}</p>
-          <div className="flex flex-wrap gap-2">
-            <Badge variant="secondary" className="text-xs bg-success/10 text-success border-success/20">
-              <ArrowUpRight className="w-3 h-3 mr-1" />
-              {employeeGrowth6m} (6m)
-            </Badge>
-            <Badge variant="secondary" className="text-xs bg-success/10 text-success border-success/20">
-              <ArrowUpRight className="w-3 h-3 mr-1" />
-              {employeeGrowth1y} (1y)
-            </Badge>
-          </div>
-        </div>
-
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Funding Stage */}
         <div className="p-5 rounded-xl bg-gradient-to-br from-accent/5 to-accent/10 border border-accent/20 hover:border-accent/40 transition-all">
           <div className="flex items-center gap-2 mb-3">

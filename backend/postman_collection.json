@@ -1,0 +1,399 @@
+{
+  "info": {
+    "name": "AI Fund Scan Backend API - Phase 3",
+    "_postman_id": "ai-fund-scan-api-v1",
+    "description": "Complete API collection for testing AI Fund Scan backend (Phase 3: Basic Analysis with Traction Agent).\n\nPhase 3 includes:\n- Health check endpoint\n- Company search (Crunchbase via Firecrawl)\n- Full analysis workflow with traction agent\n\nFor detailed testing instructions, see backend/POSTMAN_TESTING.md",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response has status field\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('status');",
+              "    pm.expect(jsonData.status).to.eql('ok');",
+              "});",
+              "",
+              "pm.test(\"Phase 3 endpoints are available\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('endpoints_available');",
+              "    pm.expect(jsonData.endpoints_available).to.include('/api/health');",
+              "    pm.expect(jsonData.endpoints_available).to.include('/api/search');",
+              "    pm.expect(jsonData.endpoints_available).to.include('/api/analyze');",
+              "});",
+              "",
+              "pm.test(\"Response time is less than 1000ms\", function () {",
+              "    pm.expect(pm.response.responseTime).to.be.below(1000);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/health",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "health"
+          ]
+        },
+        "description": "Health check endpoint to verify backend is running and check which phase is active.\n\nExpected response:\n```json\n{\n  \"status\": \"ok\",\n  \"phase\": \"3 - Basic Analysis (Traction Agent)\",\n  \"endpoints_available\": [\"/api/health\", \"/api/search\", \"/api/analyze\"]\n}\n```"
+      },
+      "response": []
+    },
+    {
+      "name": "Search Company - OpenAI",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response has query field\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('query');",
+              "    pm.expect(jsonData.query).to.eql('OpenAI');",
+              "});",
+              "",
+              "pm.test(\"Response has results array\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('results');",
+              "    pm.expect(jsonData.results).to.be.an('array');",
+              "});",
+              "",
+              "pm.test(\"Results have correct structure\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    if (jsonData.results.length > 0) {",
+              "        var firstResult = jsonData.results[0];",
+              "        pm.expect(firstResult).to.have.property('url');",
+              "        pm.expect(firstResult).to.have.property('title');",
+              "        pm.expect(firstResult.url).to.include('crunchbase.com');",
+              "    }",
+              "});",
+              "",
+              "pm.test(\"Count matches results length\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.count).to.eql(jsonData.results.length);",
+              "});",
+              "",
+              "pm.test(\"Response time is less than 15 seconds\", function () {",
+              "    pm.expect(pm.response.responseTime).to.be.below(15000);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"query\": \"OpenAI\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/search",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "search"
+          ]
+        },
+        "description": "Search for companies on Crunchbase using Firecrawl.\n\nThis endpoint performs HITL Checkpoint 1 - returns 3-5 company options for user selection.\n\nExpected response time: 5-10 seconds"
+      },
+      "response": []
+    },
+    {
+      "name": "Search Company - Stripe",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response has results\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.results).to.be.an('array');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"query\": \"Stripe\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/search",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "search"
+          ]
+        },
+        "description": "Alternative search example for Stripe."
+      },
+      "response": []
+    },
+    {
+      "name": "Analyze Company - Basic Test",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response has required fields\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('name');",
+              "    pm.expect(jsonData).to.have.property('domain');",
+              "    pm.expect(jsonData).to.have.property('traction');",
+              "    pm.expect(jsonData).to.have.property('indicators');",
+              "    pm.expect(jsonData).to.have.property('outlook');",
+              "});",
+              "",
+              "pm.test(\"Traction object has correct structure\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.traction).to.have.property('summary');",
+              "    pm.expect(jsonData.traction).to.have.property('milestones');",
+              "    pm.expect(jsonData.traction.milestones).to.be.an('array');",
+              "});",
+              "",
+              "pm.test(\"Indicators object has all fields\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.indicators).to.have.property('growth');",
+              "    pm.expect(jsonData.indicators).to.have.property('team');",
+              "    pm.expect(jsonData.indicators).to.have.property('market');",
+              "    pm.expect(jsonData.indicators).to.have.property('product');",
+              "});",
+              "",
+              "pm.test(\"Outlook has required fields\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.outlook).to.have.property('overall');",
+              "    pm.expect(jsonData.outlook).to.have.property('summary');",
+              "    pm.expect(jsonData.outlook).to.have.property('keyPoints');",
+              "});",
+              "",
+              "pm.test(\"Response time is less than 90 seconds\", function () {",
+              "    pm.expect(pm.response.responseTime).to.be.below(90000);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"company_url\": \"https://openai.com\",\n  \"crunchbase_url\": \"https://www.crunchbase.com/organization/openai\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/analyze",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "analyze"
+          ]
+        },
+        "description": "Run full company analysis workflow with LlamaIndex and traction agent.\n\n**Phase 3 Features:**\n- Data collection (Stage 1) - uses mock data\n- Traction agent analysis (Stage 2) - calls Perplexity Sonar LLM\n- Returns traction analysis with revenue, users, growth metrics\n\n**Important:**\n- Set Postman timeout to 120000ms (2 minutes)\n- Expected response time: 30-60 seconds\n- Uses mock data in Phase 3 (real scrapers in future phases)"
+      },
+      "response": []
+    },
+    {
+      "name": "Analyze Company - Alternative",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Traction analysis completed\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.traction).to.have.property('summary');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"company_url\": \"https://stripe.com\",\n  \"crunchbase_url\": \"https://www.crunchbase.com/organization/stripe\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/analyze",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "analyze"
+          ]
+        },
+        "description": "Alternative analysis example using Stripe."
+      },
+      "response": []
+    },
+    {
+      "name": "Search - Empty Query (Error Test)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 400\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "",
+              "pm.test(\"Error message is present\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('detail');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"query\": \"\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/search",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "search"
+          ]
+        },
+        "description": "Error test case: Empty query should return 400 Bad Request."
+      },
+      "response": []
+    },
+    {
+      "name": "Analyze - Missing Field (Error Test)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 422\", function () {",
+              "    pm.response.to.have.status(422);",
+              "});",
+              "",
+              "pm.test(\"Validation error is present\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('detail');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"company_url\": \"https://openai.com\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/analyze",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "analyze"
+          ]
+        },
+        "description": "Error test case: Missing crunchbase_url field should return 422 Unprocessable Entity."
+      },
+      "response": []
+    }
+  ]
+}

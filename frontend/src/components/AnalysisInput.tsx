@@ -3,9 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, TrendingUp, ExternalLink, Check } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { searchCompany } from "@/services/api";
+import { toast } from "sonner";
+import type { CompanySearchResult } from "@/types/api";
 
 interface AnalysisInputProps {
-  onAnalyze: (url: string) => void;
+  onAnalyze: (companyUrl: string, crunchbaseUrl: string) => void;
   isLoading?: boolean;
 }
 
@@ -19,9 +22,8 @@ export const AnalysisInput = ({ onAnalyze, isLoading }: AnalysisInputProps) => {
   const [input, setInput] = useState("");
   const [showOptions, setShowOptions] = useState(false);
   const [selectedUrl, setSelectedUrl] = useState<string>("");
-  
-  // Mock search results - in production, this would come from an API
-  const [searchResults, setSearchResults] = useState<CompanyOption[]>([]);
+  const [searchResults, setSearchResults] = useState<CompanySearchResult[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   const isUrl = (str: string) => {
     try {
@@ -32,38 +34,37 @@ export const AnalysisInput = ({ onAnalyze, isLoading }: AnalysisInputProps) => {
     }
   };
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
 
     // If it's already a URL, skip search and go straight to analysis
     if (isUrl(input.trim())) {
       const url = input.trim().startsWith('http') ? input.trim() : `https://${input.trim()}`;
-      onAnalyze(url);
+      onAnalyze(url, url);
       return;
     }
 
-    // Mock search results based on input
-    const mockResults: CompanyOption[] = [
-      {
-        name: `${input} Inc.`,
-        url: `${input.toLowerCase().replace(/\s+/g, '')}.com`,
-        description: "Official company website"
-      },
-      {
-        name: `${input} AI`,
-        url: `${input.toLowerCase().replace(/\s+/g, '')}ai.io`,
-        description: "AI-powered platform"
-      },
-      {
-        name: `${input} Labs`,
-        url: `${input.toLowerCase().replace(/\s+/g, '')}labs.com`,
-        description: "Research and development"
+    // Search using backend API
+    setIsSearching(true);
+    try {
+      const response = await searchCompany(input.trim());
+
+      if (response.count === 0) {
+        toast.error("No companies found. Try a different search term.");
+        setIsSearching(false);
+        return;
       }
-    ];
-    
-    setSearchResults(mockResults);
-    setShowOptions(true);
+
+      setSearchResults(response.results);
+      setShowOptions(true);
+      toast.success(`Found ${response.count} companies`);
+    } catch (error) {
+      console.error("Search error:", error);
+      toast.error("Search failed. Please try again.");
+    } finally {
+      setIsSearching(false);
+    }
   };
 
   const handleSelectUrl = (url: string) => {
@@ -72,7 +73,7 @@ export const AnalysisInput = ({ onAnalyze, isLoading }: AnalysisInputProps) => {
 
   const handleConfirmSelection = () => {
     if (selectedUrl) {
-      onAnalyze(selectedUrl);
+      onAnalyze(selectedUrl, selectedUrl);
     }
   };
 
@@ -125,13 +126,18 @@ export const AnalysisInput = ({ onAnalyze, isLoading }: AnalysisInputProps) => {
               <Button
                 type="submit"
                 size="lg"
-                disabled={!input.trim() || isLoading}
+                disabled={!input.trim() || isLoading || isSearching}
                 className="px-10 h-16 text-lg rounded-2xl bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-all shadow-lg hover:shadow-xl"
               >
-                {isLoading ? (
+                {isSearching ? (
                   <span className="flex items-center gap-2">
                     <span className="animate-spin">⚡</span>
                     Searching...
+                  </span>
+                ) : isLoading ? (
+                  <span className="flex items-center gap-2">
+                    <span className="animate-spin">⚡</span>
+                    Analyzing...
                   </span>
                 ) : (
                   "Analyze Now"
@@ -151,7 +157,7 @@ export const AnalysisInput = ({ onAnalyze, isLoading }: AnalysisInputProps) => {
               <button
                 key={example.domain}
                 onClick={() => setInput(example.domain)}
-                disabled={isLoading}
+                disabled={isLoading || isSearching}
                 className="group px-4 py-2 text-sm rounded-xl bg-secondary/50 hover:bg-secondary border border-border/50 hover:border-primary/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span className="font-medium group-hover:text-primary transition-colors">
@@ -218,7 +224,9 @@ export const AnalysisInput = ({ onAnalyze, isLoading }: AnalysisInputProps) => {
                       <ExternalLink className="w-4 h-4" />
                       <span>{option.url}</span>
                     </div>
-                    <p className="text-sm text-muted-foreground">{option.description}</p>
+                    {option.description && (
+                      <p className="text-sm text-muted-foreground">{option.description}</p>
+                    )}
                   </div>
                 </div>
               </Card>
@@ -228,7 +236,7 @@ export const AnalysisInput = ({ onAnalyze, isLoading }: AnalysisInputProps) => {
           <div className="flex justify-end mt-6">
             <Button
               onClick={handleConfirmSelection}
-              disabled={!selectedUrl || isLoading}
+              disabled={!selectedUrl || isLoading || isSearching}
               size="lg"
               className="px-8 gradient-primary hover:opacity-90 transition-smooth"
             >
